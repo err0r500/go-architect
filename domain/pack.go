@@ -5,6 +5,14 @@ type Pack struct {
 	packageClass
 }
 
+func NewPackFromPath(p string) *Pack {
+	pP := packagePath(p)
+	return &Pack{
+		packagePath:  pP,
+		packageClass: pP.getPackageClass(),
+	}
+}
+
 type packageClass string
 
 const (
@@ -16,16 +24,6 @@ const (
 
 type packagePath string
 
-func (pP packagePath) getPackageClass() (packageClass, error) {
-	return corePackage, nil
-}
-
-func newPackageFromPath(p string) (*Pack, error) {
-	pP := packagePath(p)
-	c, err := pP.getPackageClass()
-	if err != nil {
-		return nil, err
-	}
-
-	return &Pack{packagePath: pP, packageClass: c}, nil
+func (pP packagePath) getPackageClass() packageClass {
+	return unknownPackageClass
 }
