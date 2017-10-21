@@ -1,0 +1,9 @@
+workspace:
+  base: /go
+  path: src/github.com/err0r500/go-architect
+
+pipeline:
+  buildTest:
+    image: golang
+    commands:
+      - go test ./...

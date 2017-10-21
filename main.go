@@ -27,11 +27,6 @@ type JSONwriter interface {
 	ToJSON() (*[]byte, error)
 }
 
-// inutile pour l'instant
-// type ImportsFinder interface {
-// 	GetAllImports() (importsPaths *[]string, err error)
-// }
-
 type ImportsFinderInteractor struct {
 	tE   TreeExplorer
 	fM   FileManager
@@ -49,7 +44,7 @@ func main() {
 }
 
 // juste un gros bloc pour montrer ma idée initiale, surement naîve
-func (i ImportsFinderInteractor) GetAllImports() []domain.Pack {
+func (i ImportsFinderInteractor) GetAllImports() *[]domain.Pack {
 	dirs, _ := i.tE.GetDirsInTree(".")
 
 	for _, dir := range *dirs {
@@ -61,4 +56,5 @@ func (i ImportsFinderInteractor) GetAllImports() []domain.Pack {
 			log.Print(imports)
 		}
 	}
+	return nil
 }
