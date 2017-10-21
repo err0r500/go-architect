@@ -4,7 +4,7 @@
 
 
 ## Roadmap v0.1
-- [ ] find all imports found in a directory tree
+- [ ] find all imports in a directory tree
 - [ ] filter out the duplicates
 - [ ] build the corresponding [directed graph](https://en.wikipedia.org/wiki/Directed_graph) 
 - [ ] visualize the graph (from an external tool, see below)
