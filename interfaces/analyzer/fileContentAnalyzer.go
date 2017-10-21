@@ -5,6 +5,7 @@ import (
 	"go/ast"
 	"go/parser"
 	"go/token"
+	"log"
 	"reflect"
 )
 
@@ -35,6 +36,7 @@ func AnnalyzeFile() {
 	if err != nil {
 		panic(err)
 	}
+	ss := []string{}
 
 	// Inspect the AST and print all identifiers and literals.
 	ast.Inspect(f, func(n ast.Node) bool {
@@ -45,6 +47,7 @@ func AnnalyzeFile() {
 		switch x := n.(type) {
 		case *ast.Ident:
 			s = "curPackageName : " + x.Name
+			ss = append(ss, s)
 			// case *ast.ImportSpec:
 			// 	s = "import : " + x.Path.Value
 			// 	break
@@ -59,4 +62,5 @@ func AnnalyzeFile() {
 		fmt.Println("---")
 		return true
 	})
+	log.Print(ss)
 }
