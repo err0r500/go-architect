@@ -1,31 +1,11 @@
 package main
 
 import (
-	"log"
-
 	"github.com/err0r500/go-architect/domain"
-	"github.com/err0r500/go-architect/interfaces/mocked"
+	mockedAstM "github.com/err0r500/go-architect/interfaces/astManager/mocked"
+	mockedFM "github.com/err0r500/go-architect/interfaces/fileManager/mocked"
+	mockedTE "github.com/err0r500/go-architect/interfaces/treeExplorer/mocked"
 )
-
-// on pourra virer les paramètres des méthodes et utiliser des propriétés des structs implémentant
-// les interfaces dans un second temps, c'est juste pour y voir plus claire au début ...
-type TreeExplorer interface {
-	GetDirsInTree(rootPath string) (dirPathes *[]string, err error)
-	GetFilesInDir(dirPath string) (pathes *[]string, err error)
-}
-
-type FileManager interface {
-	GetFileContent(path string) (*string, error)
-	WriteToFile() error
-}
-
-type AstManager interface {
-	GetImports(fileContent string) (importsPaths *[]string, err error)
-}
-
-type JSONwriter interface {
-	ToJSON() (*[]byte, error)
-}
 
 type ImportsFinderInteractor struct {
 	tE   TreeExplorer
@@ -35,17 +15,19 @@ type ImportsFinderInteractor struct {
 
 func main() {
 	dummy := ImportsFinderInteractor{
-		tE:   mocked.TreeExplorer{},
-		fM:   mocked.FileManager{},
-		astM: mocked.AstManager{},
+		tE:   mockedTE.TreeExplorer{},
+		fM:   mockedFM.FileManager{},
+		astM: mockedAstM.AstManager{},
 	}
 
 	dummy.GetAllImports()
 }
 
-// juste un gros bloc pour montrer ma idée initiale, surement naîve
+// juste un gros bloc pour montrer l'idée initiale, surement naîve
 func (i ImportsFinderInteractor) GetAllImports() *[]domain.Pack {
 	dirs, _ := i.tE.GetDirsInTree(".")
+
+	packageList := []domain.Pack{}
 
 	for _, dir := range *dirs {
 		files, _ := i.tE.GetFilesInDir(dir)
@@ -53,8 +35,10 @@ func (i ImportsFinderInteractor) GetAllImports() *[]domain.Pack {
 		for _, file := range *files {
 			fileContent, _ := i.fM.GetFileContent(file)
 			imports, _ := i.astM.GetImports(*fileContent)
-			log.Print(imports)
+			for _, importPath := range *imports {
+				packageList = append(packageList, *domain.NewPackFromPath(importPath))
+			}
 		}
 	}
-	return nil
+	return &packageList
 }
