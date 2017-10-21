@@ -35,6 +35,7 @@ func (i ImportsFinderInteractor) GetAllImports() *[]domain.Pack {
 		for _, file := range *files {
 			fileContent, _ := i.fM.GetFileContent(file)
 			imports, _ := i.astM.GetImports(*fileContent)
+
 			for _, importPath := range *imports {
 				packageList = append(packageList, *domain.NewPackFromPath(importPath))
 			}
