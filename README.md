@@ -9,10 +9,10 @@
 - [ ] build the corresponding [directed graph](https://en.wikipedia.org/wiki/Directed_graph) 
 - [ ] format the graph for a visualization lib or 2 (see below)
 - [ ] visualize the graph (see below)
-- [ ] build for Linux & Windows
 
 ## Roadmap v0.2
 - [ ] add simple qualification / weight to vertices from default settings
+- [ ] Desktop version
 
 ## Roadmap v0.3
 - [ ] dynamically add & customize rules from UI (grapQL ?) 
@@ -23,6 +23,9 @@
     - [d3js](https://github.com/d3/d3/wiki/Gallery)
     - [cytoscape.js](https://github.com/cytoscape/cytoscape.js)
 
+- Desktop :
+    - [electron](https://electron.atom.io/)
+    
 - Storage : 
     - [ArangoDB](https://www.arangodb.com/)
 
