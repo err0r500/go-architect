@@ -1,10 +1,12 @@
 package main
 
 import (
+	"log"
+
 	"github.com/err0r500/go-architect/domain"
-	mockedAstM "github.com/err0r500/go-architect/interfaces/astManager/mocked"
-	mockedFM "github.com/err0r500/go-architect/interfaces/fileManager/mocked"
-	mockedTE "github.com/err0r500/go-architect/interfaces/treeExplorer/mocked"
+	AstM "github.com/err0r500/go-architect/interfaces/astManager"
+	FM "github.com/err0r500/go-architect/interfaces/fileManager"
+	TE "github.com/err0r500/go-architect/interfaces/treeExplorer"
 )
 
 type ImportsFinderInteractor struct {
@@ -15,25 +17,30 @@ type ImportsFinderInteractor struct {
 
 func main() {
 	dummy := ImportsFinderInteractor{
-		tE:   mockedTE.TreeExplorer{},
-		fM:   mockedFM.FileManager{},
-		astM: mockedAstM.AstManager{},
+		tE:   TE.TreeExplorer{},
+		fM:   FM.FileManager{},
+		astM: AstM.AstManager{},
 	}
 
-	dummy.GetAllImports()
+	imports := dummy.GetAllImports()
+	log.Print(imports)
 }
 
 // juste un gros bloc pour montrer l'idée initiale, surement naîve
 func (i ImportsFinderInteractor) GetAllImports() *[]domain.Pack {
 	dirs, _ := i.tE.GetDirsInTree(".")
-
 	packageList := []domain.Pack{}
 
 	for _, dir := range *dirs {
 		fPathes, _ := i.tE.GetFilesInDir(dir)
 
 		for _, fPath := range *fPathes {
-			fileContent, _ := i.fM.GetFileContent(domain.File{Path: fPath})
+			f := domain.File{Path: dir + "/" + fPath}
+			fileContent, err := i.fM.GetFileContent(f)
+			if err != nil {
+				log.Print(err)
+				continue
+			}
 			imports, _ := i.astM.GetImports(*fileContent)
 
 			for _, importPath := range *imports {
