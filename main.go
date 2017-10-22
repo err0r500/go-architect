@@ -16,6 +16,7 @@ type ImportsFinderInteractor struct {
 }
 
 func main() {
+
 	dummy := ImportsFinderInteractor{
 		tE:   TE.TreeExplorer{},
 		fM:   FM.FileManager{},
@@ -23,6 +24,7 @@ func main() {
 	}
 
 	dummy.GetAllImports()
+
 }
 
 // juste un gros bloc pour montrer l'idée initiale, surement naîve
@@ -45,9 +47,24 @@ func (i ImportsFinderInteractor) GetAllImports() *[]domain.Pack {
 			for _, importPath := range *imports {
 				packageList = append(packageList, *domain.NewPackFromPath(importPath))
 			}
-
-			log.Print(f.GetPath(), "depends on : ", *imports)
+			logThisDep(f, *imports)
 		}
 	}
 	return &packageList
+}
+
+// just for tests
+func logThisDep(f domain.File, imports []string) {
+	logStr := ""
+	if len(imports) == 0 {
+		log.Print(f.GetPath(), "depends on nothing")
+		return
+	}
+
+	logStr = f.GetPath() + " depends on :\n"
+	for _, imp := range imports {
+		p := domain.NewPackFromPath(imp)
+		logStr += "	  " + p.String() + "\n"
+	}
+	log.Print(logStr)
 }
