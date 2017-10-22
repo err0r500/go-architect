@@ -1,6 +1,6 @@
-package fileManager
+package domain
 
-// File, very simple representation of an file
+// File, very simple representation of a file
 // implementing the Filer interface
 type File struct {
 	Path    string
