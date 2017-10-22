@@ -7,13 +7,14 @@ import (
 )
 
 func TestGetDirsInTree(t *testing.T) {
+	// should be relative to $GOPATH ? -> build.Default.GOPATH
 	expected := []string{
-		"test_data",
-		"test_data/folder1",
+		"../../testHelpers/test_data",
+		"../../testHelpers/test_data/folder1",
 	}
 
 	tE := TreeExplorer{}
-	returned, err := tE.GetDirsInTree("./test_data")
+	returned, err := tE.GetDirsInTree("../../testHelpers/test_data")
 	if err != nil {
 		t.Error(err)
 	}
@@ -30,7 +31,7 @@ func TestGetFilesInDir(t *testing.T) {
 	}
 
 	tE := TreeExplorer{}
-	returned, err := tE.GetFilesInDir("./test_data")
+	returned, err := tE.GetFilesInDir("../../testHelpers/test_data")
 	if err != nil {
 		t.Error(err)
 	}

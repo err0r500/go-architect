@@ -14,6 +14,9 @@ func (fE TreeExplorer) GetDirsInTree(rootPath string) (*[]string, error) {
 
 	visit := func(path string, f os.FileInfo, err error) error {
 		if f.IsDir() {
+			if f.Name()[0] == '.' {
+				return nil
+			}
 			dirs = append(dirs, filepath.Clean(path))
 		}
 		return nil
