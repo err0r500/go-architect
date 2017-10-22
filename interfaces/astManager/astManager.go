@@ -1,44 +1,27 @@
 package AstManager
 
 import (
-	"fmt"
-	"go/ast"
 	"go/parser"
 	"go/token"
-	"log"
-	"reflect"
+	"strings"
 )
 
 type AstManager struct{}
 
 func (astM AstManager) GetImports(fileContent string) (importsPaths *[]string, err error) {
-	fset := token.NewFileSet()
-	f, err := parser.ParseFile(fset, "src.go", fileContent, 0)
-	if err != nil {
-		return nil, err
+	// could be used directly with file :
+	// set the real path instead of "dummyPath"
+	// and nil instead of the fileContent
+	f, _ := parser.ParseFile(token.NewFileSet(), "dummyPath", fileContent, parser.ImportsOnly)
+	if f == nil {
+		return nil, nil
 	}
+
 	ss := []string{}
+	for _, importSpec := range f.Imports {
+		// also removes the quotes from the returned string
+		ss = append(ss, strings.Replace(importSpec.Path.Value, "\"", "", -1))
+	}
 
-	ast.Inspect(f, func(n ast.Node) bool {
-		s := ""
-
-		fmt.Println(reflect.TypeOf(n))
-
-		switch x := n.(type) {
-		case *ast.Ident:
-			s = "curPackageName : " + x.Name
-			ss = append(ss, s)
-			// case *ast.ImportSpec:
-			// 	s = "import : " + x.Path.Value
-			// 	break
-			// case *ast.BasicLit:
-			// 	s = "literal : " + x.Value + " -> " + x.Kind.String()
-			// case *ast.CallExpr:
-			// 	s = x.Args x.Name + " -> " + fmt.Sprintf("%s", x.Obj)
-		}
-		return true
-	})
-
-	log.Print(ss)
 	return &ss, nil
 }
