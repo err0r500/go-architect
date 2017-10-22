@@ -22,8 +22,7 @@ func main() {
 		astM: AstM.AstManager{},
 	}
 
-	imports := dummy.GetAllImports()
-	log.Print(imports)
+	dummy.GetAllImports()
 }
 
 // juste un gros bloc pour montrer l'idée initiale, surement naîve
@@ -46,6 +45,8 @@ func (i ImportsFinderInteractor) GetAllImports() *[]domain.Pack {
 			for _, importPath := range *imports {
 				packageList = append(packageList, *domain.NewPackFromPath(importPath))
 			}
+
+			log.Print(f.GetPath(), "depends on : ", *imports)
 		}
 	}
 	return &packageList
