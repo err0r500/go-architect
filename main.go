@@ -30,10 +30,10 @@ func (i ImportsFinderInteractor) GetAllImports() *[]domain.Pack {
 	packageList := []domain.Pack{}
 
 	for _, dir := range *dirs {
-		files, _ := i.tE.GetFilesInDir(dir)
+		fPathes, _ := i.tE.GetFilesInDir(dir)
 
-		for _, file := range *files {
-			fileContent, _ := i.fM.GetFileContent(file)
+		for _, fPath := range *fPathes {
+			fileContent, _ := i.fM.GetFileContent(domain.File{Path: fPath})
 			imports, _ := i.astM.GetImports(*fileContent)
 
 			for _, importPath := range *imports {

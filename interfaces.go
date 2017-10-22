@@ -1,5 +1,7 @@
 package main
 
+import "github.com/err0r500/go-architect/domain"
+
 // on pourra virer les paramètres des méthodes et utiliser des propriétés des structs implémentant
 // les interfaces dans un second temps, c'est juste pour y voir plus claire au début ...
 type TreeExplorer interface {
@@ -8,8 +10,8 @@ type TreeExplorer interface {
 }
 
 type FileManager interface {
-	GetFileContent(path string) (*string, error)
-	WriteToFile() error
+	GetFileContent(domain.File) (*string, error)
+	Write(domain.File) error
 }
 
 type AstManager interface {
