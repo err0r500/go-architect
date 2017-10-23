@@ -19,16 +19,23 @@ type Pack struct {
 	packageClass
 }
 
-func (p Pack) String() string {
-	return string(p.packagePath) + " (" + string(p.packageClass) + ")"
-}
-
 func NewPackFromPath(p string) *Pack {
 	pP := packagePath(p)
 	return &Pack{
 		packagePath:  pP,
 		packageClass: pP.getPackageClass(),
 	}
+}
+
+func (p Pack) String() string {
+	return string(p.packagePath) + " (" + string(p.packageClass) + ")"
+}
+
+func (p Pack) GetPath() string {
+	return string(p.packagePath)
+}
+func (p Pack) GetClass() string {
+	return string(p.packageClass)
 }
 
 type packageClass string
@@ -47,12 +54,26 @@ func (pP packagePath) getPackageClass() packageClass {
 		return internalpackage
 	}
 
-	var core = regexp.MustCompile(`"[a-z]*[^/]"`) // pas très classe et souvent plus compliqué que ça
-	if core.MatchString(string(`"` + pP + `"`)) {
+	if isStandardImportPath(string(pP)) {
 		return corePackage
 	}
 
 	return thirdPartyPackage
+}
+
+// copy-pasted from go source code ! :)
+
+// isStandardImportPath reports whether $GOROOT/src/path should be considered
+// part of the standard distribution. For historical reasons we allow people to add
+// their own code to $GOROOT instead of using $GOPATH, but we assume that
+// code will start with a domain name (dot in the first element).
+func isStandardImportPath(path string) bool {
+	i := strings.Index(path, "/")
+	if i < 0 {
+		i = len(path)
+	}
+	elem := path[:i]
+	return !strings.Contains(elem, ".")
 }
 
 func setCurrPackageImportPath() {
