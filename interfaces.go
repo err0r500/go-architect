@@ -19,5 +19,5 @@ type AstManager interface {
 }
 
 type JSONwriter interface {
-	ToJSON() (*[]byte, error)
+	ToJSON(dG *domain.Graph) (string, error)
 }
