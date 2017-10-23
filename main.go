@@ -47,7 +47,6 @@ func (i ImportsFinderInteractor) GetAllImports() *domain.Graph {
 		}
 
 		currVerticeID := appendVertice(graph, dir)
-		log.Print("FROM DIR :", currVerticeID, "(", dir, ")")
 		fPathes, _ := i.tE.GetFilesInDir(dir)
 
 		for _, fPath := range *fPathes {

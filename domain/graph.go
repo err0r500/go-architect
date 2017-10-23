@@ -23,14 +23,16 @@ func (graph *Graph) AppendRootNode(p *Pack) int {
 			return i
 		}
 	}
-	vertice := Vertice{Pack: *p, Name: p.GetPath(), Label: p.GetClass(), ID: len(graph.Vertices)}
 
+	insertID := len(graph.Vertices)
+	vertice := Vertice{Pack: *p, Name: p.GetPath(), Label: p.GetClass(), ID: insertID}
 	graph.Vertices = append(graph.Vertices, vertice)
-	return len(graph.Vertices)
+	return insertID
 }
 
 func (graph *Graph) BuildGraph(verticeID int, p *Pack) {
 	nodeID := graph.AppendRootNode(p)
-	graph.Edges = append(graph.Edges, Edge{Source: verticeID, Target: nodeID})
-	return
+	if verticeID != nodeID {
+		graph.Edges = append(graph.Edges, Edge{Source: verticeID, Target: nodeID})
+	}
 }
