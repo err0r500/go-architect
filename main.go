@@ -48,12 +48,7 @@ func (i ImportsFinderInteractor) GetAllImports() *domain.Graph {
 
 		for _, fPath := range *fPathes {
 			f := domain.File{Path: dir + "/" + fPath}
-			fileContent, err := i.fM.GetFileContent(f)
-			if err != nil {
-				log.Print(err)
-				continue
-			}
-			imports, _ := i.astM.GetImports(*fileContent)
+			imports, _ := i.astM.GetImportsFromFile(f.GetPath())
 
 			for _, importPath := range *imports {
 				graph.BuildGraph(currVerticeID, domain.NewPackFromPath(importPath))

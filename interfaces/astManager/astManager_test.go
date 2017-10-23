@@ -1,6 +1,8 @@
 package AstManager
 
 import (
+	"io/ioutil"
+	"os"
 	"testing"
 
 	"github.com/err0r500/go-architect/testHelpers"
@@ -33,8 +35,12 @@ func TestAstManager_GetImports(t *testing.T) {
 		"github.com/err0r500/codeAnalyzer/analyzer",
 	}
 
+	testFilePath := "./testFile.go"
+
+	ioutil.WriteFile(testFilePath, []byte(src), 0644)
+	defer os.Remove(testFilePath)
 	astM := AstManager{}
-	returned, err := astM.GetImports(src)
+	returned, err := astM.GetImportsFromFile(testFilePath)
 	if err != nil {
 		t.Error(err)
 	}

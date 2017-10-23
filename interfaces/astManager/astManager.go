@@ -8,11 +8,8 @@ import (
 
 type AstManager struct{}
 
-func (astM AstManager) GetImports(fileContent string) (importsPaths *[]string, err error) {
-	// could be used directly with file :
-	// set the real path instead of "dummyPath"
-	// and nil instead of the fileContent
-	f, _ := parser.ParseFile(token.NewFileSet(), "dummyPath", fileContent, parser.ImportsOnly)
+func (astM AstManager) GetImportsFromFile(filePath string) (importsPaths *[]string, err error) {
+	f, _ := parser.ParseFile(token.NewFileSet(), filePath, nil, parser.ImportsOnly)
 	if f == nil {
 		return nil, nil
 	}

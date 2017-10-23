@@ -15,7 +15,7 @@ type FileManager interface {
 }
 
 type AstManager interface {
-	GetImports(fileContent string) (importsPaths *[]string, err error)
+	GetImportsFromFile(filePath string) (importsPaths *[]string, err error)
 }
 
 type JSONwriter interface {
