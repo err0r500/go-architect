@@ -31,8 +31,7 @@ func main() {
 
 	graph := i.GetAllImports()
 	jsonPayload, _ := i.jsonW.ToJSON(graph)
-	log.Print(jsonPayload)
-	err := i.fM.Write(domain.File{Path: "/tmp/testGraph2.json", Content: []byte(jsonPayload)})
+	err := i.fM.Write(domain.File{Path: "./js/testGraph.json", Content: []byte(jsonPayload)})
 	log.Print(err)
 }
 
@@ -42,13 +41,22 @@ func (i ImportsFinderInteractor) GetAllImports() *domain.Graph {
 	graph := &domain.Graph{}
 
 	for _, dir := range *dirs {
-		currVerticeID := appendVertice(graph, dir)
+		dir, err := filepath.Abs(dir)
+		if err != nil {
+			continue
+		}
 
+		currVerticeID := appendVertice(graph, dir)
+		log.Print("FROM DIR :", currVerticeID, "(", dir, ")")
 		fPathes, _ := i.tE.GetFilesInDir(dir)
 
 		for _, fPath := range *fPathes {
 			f := domain.File{Path: dir + "/" + fPath}
-			imports, _ := i.astM.GetImportsFromFile(f.GetPath())
+
+			imports, err := i.astM.GetImportsFromFile(f.GetPath())
+			if err != nil {
+				continue
+			}
 
 			for _, importPath := range *imports {
 				graph.BuildGraph(currVerticeID, domain.NewPackFromPath(importPath))
