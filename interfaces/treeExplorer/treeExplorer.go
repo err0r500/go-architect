@@ -4,6 +4,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"regexp"
 )
 
 type TreeExplorer struct{}
@@ -14,8 +15,13 @@ func (fE TreeExplorer) GetDirsInTree(rootPath string) (*[]string, error) {
 
 	visit := func(path string, f os.FileInfo, err error) error {
 		if f.IsDir() {
-			if f.Name()[0] == '.' {
-				return nil
+			// filter out folders starting with a dot and vendor folder
+			var folderStartsWithADot = regexp.MustCompile(`^\.[a-z]+`)
+			if folderStartsWithADot.MatchString(f.Name()) {
+				return filepath.SkipDir
+			}
+			if f.Name() == "vendor" {
+				return filepath.SkipDir
 			}
 			dirs = append(dirs, filepath.Clean(path))
 		}
