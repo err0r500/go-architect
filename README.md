@@ -31,3 +31,4 @@
 
 En regardant ce que des libs JS ci-dessus font à partir d'un simple JSON, l'étape DB peut sans doute se faire dans un second temps... On peut déjà faire des essais avec l'interface JSONwriter qui génère un fichier formatté pour une lib ou une autre (en fct de quel struct l'implémente) et on plug ça dans un exemple de démo ...
 
+ 
