@@ -44,10 +44,10 @@ var simulation = d3.forceSimulation()
 
 d3.json("../testGraph.json", function (error, graph) {
     if (error) throw error;
-    update(graph.links, graph.nodes);
+    graphSetup(graph.links, graph.nodes);
 })
 
-function update(links, nodes) {
+function graphSetup(links, nodes) {
     link = svg.selectAll(".link")
         .data(links)
         .enter()
@@ -58,36 +58,36 @@ function update(links, nodes) {
     link.append("title")
         .text(function (d) { return d.type; });
 
-    // edgepaths = svg.selectAll(".edgepath")
-    //     .data(links)
-    //     .enter()
-    //     .append('path')
-    //     .attrs({
-    //         'class': 'edgepath',
-    //         'fill-opacity': 0,
-    //         'stroke-opacity': 0,
-    //         'id': function (d, i) { return 'edgepath' + i }
-    //     })
-    //     .style("pointer-events", "none");
+    edgepaths = svg.selectAll(".edgepath")
+        .data(links)
+        .enter()
+        .append('path')
+        .attrs({
+            'class': 'edgepath',
+            'fill-opacity': 0,
+            'stroke-opacity': 0,
+            'id': function (d, i) { return 'edgepath' + i }
+        })
+        .style("pointer-events", "none");
 
-    // edgelabels = svg.selectAll(".edgelabel")
-    //     .data(links)
-    //     .enter()
-    //     .append('text')
-    //     .style("pointer-events", "none")
-    //     .attrs({
-    //         'class': 'edgelabel',
-    //         'id': function (d, i) { return 'edgelabel' + i },
-    //         'font-size': 10,
-    //         'fill': 'white'
-    //     });
+    edgelabels = svg.selectAll(".edgelabel")
+        .data(links)
+        .enter()
+        .append('text')
+        .style("pointer-events", "none")
+        .attrs({
+            'class': 'edgelabel',
+            'id': function (d, i) { return 'edgelabel' + i },
+            'font-size': 10,
+            'fill': 'white'
+        });
 
-    // edgelabels.append('textPath')
-    //     .attr('xlink:href', function (d, i) { return '#edgepath' + i })
-    //     .style("text-anchor", "middle")
-    //     .style("pointer-events", "none")
-    //     .attr("startOffset", "50%")
-    //     .text(function (d) { return d.type });
+    edgelabels.append('textPath')
+        .attr('xlink:href', function (d, i) { return '#edgepath' + i })
+        .style("text-anchor", "middle")
+        .style("pointer-events", "none")
+        .attr("startOffset", "50%")
+        .text(function (d) { return d.type });
 
     node = svg.selectAll(".node")
         .data(nodes)
@@ -100,15 +100,13 @@ function update(links, nodes) {
         );
 
     node.on('mouseover', function (d) {
-        link.filter(function (e) {
-            return e.source.id == d.id;
-        })
+        children = buildDepsTree(d.id, "children")
+        
+        link.filter((e) => children[0].indexOf(e.source.id) !== -1)
             .attr("class", "linkActive")
             .style("stroke", currDependsOnColor);
 
-        link.filter(function (e) {
-            return e.target.id == d.id;
-        })
+        link.filter((e) => buildDepsTree(d.id, "parents")[0].indexOf(e.target.id) !== -1)
             .attr("class", "linkActive")
             .style("stroke", dependsOnCurrColor);
     })
@@ -141,6 +139,28 @@ function update(links, nodes) {
 
     simulation.force("link")
         .links(links);
+}
+
+function buildDepsTree(startNodeID, searchForParentsOrChildren) {
+    var srcArray = [[startNodeID], [0]]
+
+    var from = "source"
+    var to = "target"
+    if (searchForParentsOrChildren === "parents") {
+        from = "target"
+        to = "source"
+    }
+
+    for (i = 0; i < srcArray.length; i++) {
+        console.log(typeof link, link)
+        link.each((e) => {
+            if (srcArray[0][i] === e[from].id && srcArray[0].indexOf(e[to].id) === -1) {
+                srcArray[0].push(e[to].id)
+                srcArray[1].push(i+1)
+            }
+        })
+    }
+    return srcArray
 }
 
 function ticked() {
