@@ -2,19 +2,36 @@
 [![BCH compliance](https://bettercodehub.com/edge/badge/Err0r500/go-architect?branch=master)](https://bettercodehub.com/)
 [![Build Status](http://35.202.103.169:8000/api/badges/Err0r500/go-architect/status.svg)](http://35.202.103.169:8000/Err0r500/go-architect)
 
+## Usage
 
-## Roadmap v0.1
-- [ ] find all imports in a directory tree
-- [ ] filter out the duplicates
-- [ ] build the corresponding [directed graph](https://en.wikipedia.org/wiki/Directed_graph) 
-- [ ] format the graph for a visualization lib or 2 (see below)
-- [ ] visualize the graph (see below)
+### Install 
+```
+go get github.com/err0r500/go-architect
+cd $GOPATH/src/github.com/err0r500/go-architect/
+go install
+```
 
-## Roadmap v0.2
+### Usage
+```
+cd $GOPATH/src/whatever/folder/you/want/to/analyze
+$GOPATH/bin/go-architect
+```
+Navigate to  [http://localhost/8080](http://localhost/8080)
+
+
+## Roadmaps
+### v0.1
+- [x] find all imports in a directory tree
+- [x] filter out the duplicates
+- [x] build the corresponding [directed graph](https://en.wikipedia.org/wiki/Directed_graph) 
+- [x] format the graph for a visualization lib or 2 (see below)
+- [x] visualize the graph (see below)
+
+##{} v0.2
 - [ ] add simple qualification / weight to vertices from default settings
 - [ ] Desktop version
 
-## Roadmap v0.3
+### v0.3
 - [ ] dynamically add & customize rules from UI (grapQL ?) 
 - [ ] add new rules as plugins ?
 
