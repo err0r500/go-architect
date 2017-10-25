@@ -15,7 +15,8 @@ func Test(t *testing.T) {
 		expected packageClass
 	}{
 		{p: "error", expected: corePackage},
-		{p: "github.com/err0r500/go-architect/interfaces/treeExplorer", expected: internalpackage},
+		{p: "github.com/err0r500/go-architect", expected: rootPackage},
+		{p: "github.com/err0r500/go-architect/interfaces/treeExplorer", expected: projectPackage},
 		{p: "github.com/stretchr/testify/assert", expected: thirdPartyPackage},
 	}
 	for k, tt := range tests {
