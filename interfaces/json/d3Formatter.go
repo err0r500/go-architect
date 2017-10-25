@@ -2,6 +2,8 @@ package json
 
 import (
 	"encoding/json"
+	"math/rand"
+	"time"
 
 	"github.com/err0r500/go-architect/domain"
 )
@@ -35,9 +37,13 @@ func (formatter D3formatter) ToJSON(dG *domain.Graph) (string, error) {
 
 func newFromDomain(dG *domain.Graph) *D3Graph {
 	d3G := &D3Graph{}
+	rand.Seed(time.Now().Unix())
+
+	fakeCouplings := []string{"low", "high"}
+
 	for _, vertice := range dG.Vertices {
 		d3G.Vertices = append(d3G.Vertices, D3Vertice{
-			Name:  vertice.Name,
+			Name:  domain.TrimCurrPackagePathFrom(vertice.Name),
 			ID:    vertice.ID,
 			Label: vertice.Label,
 		})
@@ -46,7 +52,7 @@ func newFromDomain(dG *domain.Graph) *D3Graph {
 		d3G.Edges = append(d3G.Edges, D3Edge{
 			Source: edge.Source,
 			Target: edge.Target,
-			Type:   "DEPENDS_ON",
+			Type:   fakeCouplings[rand.Intn(len(fakeCouplings))],
 		})
 	}
 	return d3G

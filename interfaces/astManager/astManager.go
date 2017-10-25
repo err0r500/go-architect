@@ -1,4 +1,4 @@
-package AstManager
+package astManager
 
 import (
 	"go/parser"

@@ -34,6 +34,7 @@ func (p Pack) String() string {
 func (p Pack) GetPath() string {
 	return string(p.packagePath)
 }
+
 func (p Pack) GetClass() string {
 	return string(p.packageClass)
 }
@@ -42,16 +43,21 @@ type packageClass string
 
 const (
 	corePackage       packageClass = "corePackage"
-	internalpackage                = "projectPackage"
+	rootPackage                    = "projectRoot"
+	projectPackage                 = "projectPackage"
 	thirdPartyPackage              = "thirdPartyPackage"
 )
 
 type packagePath string
 
 func (pP packagePath) getPackageClass() packageClass {
-	var internal = regexp.MustCompile(currPackage + `.*`)
+	if string(pP) == currPackage {
+		return rootPackage
+	}
+
+	var internal = regexp.MustCompile(currPackage + `/.*`)
 	if internal.MatchString(string(pP)) {
-		return internalpackage
+		return projectPackage
 	}
 
 	if isStandardImportPath(string(pP)) {
@@ -74,6 +80,10 @@ func isStandardImportPath(path string) bool {
 	}
 	elem := path[:i]
 	return !strings.Contains(elem, ".")
+}
+
+func TrimCurrPackagePathFrom(str string) string {
+	return strings.Replace(str, currPackage+"/", "", -1)
 }
 
 func setCurrPackageImportPath() {
