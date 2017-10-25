@@ -1,4 +1,4 @@
-package main
+package interfaces
 
 import "github.com/err0r500/go-architect/domain"
 
