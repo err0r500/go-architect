@@ -5,7 +5,8 @@ var height = window.innerHeight
 var node
 var link;
 
-var projectPackageColor = "#FFD1AA"
+var projectRootColor = "white"
+var projectPackageColor = "#aac9ff"
 var corePackageColor = "#8CD28C"
 var thirdPartyPackageColor = "#E37474"
 var currDependsOnColor = "#BA4343"
@@ -47,12 +48,20 @@ d3.json("../testGraph.json", function (error, graph) {
     graphSetup(graph.links, graph.nodes);
 })
 
+function getLinkClassFromCoupling(l) {
+    cssClass = "link"
+    if (l.Type == "low") {
+        cssClass += " lowCoupling"
+    }
+    return cssClass
+}
+
 function graphSetup(links, nodes) {
     link = svg.selectAll(".link")
         .data(links)
         .enter()
         .append("line")
-        .attr("class", "link")
+        .attr("class", (d) => getLinkClassFromCoupling(d) )
         .attr('marker-end', 'url(#arrowhead)')
 
     link.append("title")
@@ -93,32 +102,33 @@ function graphSetup(links, nodes) {
         .data(nodes)
         .enter()
         .append("g")
-        .attr("class", "node:active")
         .call(d3.drag()
             .on("start", dragstarted)
             .on("drag", dragged)
         );
 
     node.on('mouseover', function (d) {
-        children = buildDepsTree(d.id, "children")
+        d3.select(this).attr("class", "active")
+
+        link.filter((e) => buildDepsTree(d.id, "children").indexOf(e.source.id) !== -1)
+        .style("stroke", currDependsOnColor)
+        .classed('active', true);
         
-        link.filter((e) => children[0].indexOf(e.source.id) !== -1)
-            .attr("class", "linkActive")
-            .style("stroke", currDependsOnColor);
-
-        link.filter((e) => buildDepsTree(d.id, "parents")[0].indexOf(e.target.id) !== -1)
-            .attr("class", "linkActive")
-            .style("stroke", dependsOnCurrColor);
+        link.filter((e) => buildDepsTree(d.id, "parents").indexOf(e.target.id) !== -1)
+        .style("stroke", dependsOnCurrColor)
+        .classed('active', true);
     })
-
+    
     node.on('mouseout', function (d) {
-        link.attr("class", "link").style("stroke", linkInactiveColor);
+        link.classed('active', false)
     })
 
     node.append("circle")
-        .attr("r", 10)
+        .attr("r",(d) => d.label === "projectRoot" ? 15 : 10)
         .style("fill", function (d, i) {
             switch (d.label) {
+                case "projectRoot":
+                    return projectRootColor
                 case "projectPackage":
                     return projectPackageColor
                 case "corePackage":
@@ -131,6 +141,7 @@ function graphSetup(links, nodes) {
     node.append("text")
         .attr("dy", -13)
         .attr("dx", -13)
+        .style("pointer-events", "none")        
         .text(function (d) { return d.name }).attr("fill", "grey")
 
     simulation
@@ -142,8 +153,8 @@ function graphSetup(links, nodes) {
 }
 
 function buildDepsTree(startNodeID, searchForParentsOrChildren) {
-    var srcArray = [[startNodeID], [0]]
-
+    var srcArray = [startNodeID]
+    
     var from = "source"
     var to = "target"
     if (searchForParentsOrChildren === "parents") {
@@ -152,11 +163,9 @@ function buildDepsTree(startNodeID, searchForParentsOrChildren) {
     }
 
     for (i = 0; i < srcArray.length; i++) {
-        console.log(typeof link, link)
         link.each((e) => {
-            if (srcArray[0][i] === e[from].id && srcArray[0].indexOf(e[to].id) === -1) {
-                srcArray[0].push(e[to].id)
-                srcArray[1].push(i+1)
+            if (srcArray[i] === e[from].id && srcArray.indexOf(e[to].id) === -1) {
+                srcArray.push(e[to].id)
             }
         })
     }
