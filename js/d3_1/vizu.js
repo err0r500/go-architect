@@ -22,22 +22,6 @@ var svg = d3.select("body")
     }))
     .append("g")
 
-svg.append('defs').append('marker')
-    .attrs({
-        'id': 'arrowhead',
-        'viewBox': '-0 -5 10 20',
-        'refX': 13,
-        'refY': 0,
-        'orient': 'auto',
-        'markerWidth': 5,
-        'markerHeight': 10,
-        'xoverflow': 'visible'
-    })
-    .append('svg:path')
-    .attr('d', 'M 0,-5 L 10 ,0 L 0,5')
-    .attr('fill', '#999')
-    .style('stroke', 'none');
-
 var simulation = d3.forceSimulation()
     .force("link", d3.forceLink().id(function (d) { return d.id; }).distance(10).strength(0))
     .force("charge", d3.forceManyBody().strength(-1000).distanceMax([50]))
@@ -56,47 +40,36 @@ function getLinkClassFromCoupling(l) {
     return cssClass
 }
 
+function setupNodesInteractions() {
+    node.on('mouseover', function (d) {
+        d3.select(this).attr("class", "active")
+
+        children = buildDepsTree(d.id, "children")
+        parents = buildDepsTree(d.id, "parents")
+
+        link.filter((e) => children.indexOf(e.source.id) !== -1)
+            .style("stroke", currDependsOnColor)
+            .classed('active', true);
+
+        link.filter((e) => parents.indexOf(e.target.id) !== -1)
+            .style("stroke", dependsOnCurrColor)
+            .classed('active', true);
+    })
+
+    node.on('mouseout', function (d) {
+        link.classed('active', false)
+    })
+}
+
 function graphSetup(links, nodes) {
     link = svg.selectAll(".link")
         .data(links)
         .enter()
         .append("line")
-        .attr("class", (d) => getLinkClassFromCoupling(d) )
-        .attr('marker-end', 'url(#arrowhead)')
+        .attr("class", (d) => getLinkClassFromCoupling(d))
 
     link.append("title")
         .text(function (d) { return d.type; });
-
-    edgepaths = svg.selectAll(".edgepath")
-        .data(links)
-        .enter()
-        .append('path')
-        .attrs({
-            'class': 'edgepath',
-            'fill-opacity': 0,
-            'stroke-opacity': 0,
-            'id': function (d, i) { return 'edgepath' + i }
-        })
-        .style("pointer-events", "none");
-
-    edgelabels = svg.selectAll(".edgelabel")
-        .data(links)
-        .enter()
-        .append('text')
-        .style("pointer-events", "none")
-        .attrs({
-            'class': 'edgelabel',
-            'id': function (d, i) { return 'edgelabel' + i },
-            'font-size': 10,
-            'fill': 'white'
-        });
-
-    edgelabels.append('textPath')
-        .attr('xlink:href', function (d, i) { return '#edgepath' + i })
-        .style("text-anchor", "middle")
-        .style("pointer-events", "none")
-        .attr("startOffset", "50%")
-        .text(function (d) { return d.type });
 
     node = svg.selectAll(".node")
         .data(nodes)
@@ -107,24 +80,8 @@ function graphSetup(links, nodes) {
             .on("drag", dragged)
         );
 
-    node.on('mouseover', function (d) {
-        d3.select(this).attr("class", "active")
-
-        link.filter((e) => buildDepsTree(d.id, "children").indexOf(e.source.id) !== -1)
-        .style("stroke", currDependsOnColor)
-        .classed('active', true);
-        
-        link.filter((e) => buildDepsTree(d.id, "parents").indexOf(e.target.id) !== -1)
-        .style("stroke", dependsOnCurrColor)
-        .classed('active', true);
-    })
-    
-    node.on('mouseout', function (d) {
-        link.classed('active', false)
-    })
-
     node.append("circle")
-        .attr("r",(d) => d.label === "projectRoot" ? 15 : 10)
+        .attr("r", (d) => d.label === "projectRoot" ? 15 : 10)
         .style("fill", function (d, i) {
             switch (d.label) {
                 case "projectRoot":
@@ -138,11 +95,14 @@ function graphSetup(links, nodes) {
             }
         })
 
+
     node.append("text")
         .attr("dy", -13)
         .attr("dx", -13)
-        .style("pointer-events", "none")        
+        .style("pointer-events", "none")
         .text(function (d) { return d.name }).attr("fill", "grey")
+
+    setupNodesInteractions()
 
     simulation
         .nodes(nodes)
@@ -154,7 +114,7 @@ function graphSetup(links, nodes) {
 
 function buildDepsTree(startNodeID, searchForParentsOrChildren) {
     var srcArray = [startNodeID]
-    
+
     var from = "source"
     var to = "target"
     if (searchForParentsOrChildren === "parents") {
@@ -181,23 +141,6 @@ function ticked() {
 
     node
         .attr("transform", function (d) { return "translate(" + d.x + ", " + d.y + ")"; });
-
-    edgepaths.attr('d', function (d) {
-        return 'M ' + d.source.x + ' ' + d.source.y + ' L ' + d.target.x + ' ' + d.target.y;
-    });
-
-    edgelabels.attr('transform', function (d) {
-        if (d.target.x < d.source.x) {
-            var bbox = this.getBBox();
-
-            rx = bbox.x + bbox.width / 2;
-            ry = bbox.y + bbox.height / 2;
-            return 'rotate(180 ' + rx + ' ' + ry + ')';
-        }
-        else {
-            return 'rotate(0)';
-        }
-    });
 }
 
 function dragstarted(d) {
