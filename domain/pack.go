@@ -2,7 +2,6 @@ package domain
 
 import (
 	"go/build"
-	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
@@ -87,10 +86,9 @@ func TrimCurrPackagePathFrom(str string) string {
 }
 
 func setCurrPackageImportPath() {
-	ex, err := os.Executable()
+	current, err := filepath.Abs("./")
 	if err != nil {
-		panic(err)
+		panic("Can't find current folder")
 	}
-
-	currPackage = strings.Replace(filepath.Dir(ex), build.Default.GOPATH+"/src/", "", -1)
+	currPackage = strings.Replace(current, build.Default.GOPATH+"/src/", "", -1)
 }

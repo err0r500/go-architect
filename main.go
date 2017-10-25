@@ -4,7 +4,9 @@ import (
 	"go/build"
 	"io"
 	"net/http"
+	"path"
 	"path/filepath"
+	"runtime"
 	"strings"
 
 	"github.com/err0r500/go-architect/domain"
@@ -35,16 +37,19 @@ func main() {
 	// jsonPayload, _ := i.jsonW.ToJSON(graph)
 	// err := i.fM.Write(domain.File{Path: "./js/testGraph.json", Content: []byte(jsonPayload)})
 
+	_, filename, _, _ := runtime.Caller(0)
+	sourceDir := path.Dir(filename)
+
 	http.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		w.WriteHeader(http.StatusOK)
-		http.ServeFile(w, req, "./js/d3_1/index.html")
+		http.ServeFile(w, req, sourceDir+"/js/d3_1/index.html")
 	})
 
 	http.HandleFunc("/vizu.js", func(w http.ResponseWriter, req *http.Request) {
 		w.Header().Set("Content-Type", "application/javascript; charset=utf-8")
 		w.WriteHeader(http.StatusOK)
-		http.ServeFile(w, req, "./js/d3_1/vizu.js")
+		http.ServeFile(w, req, sourceDir+"/js/d3_1/vizu.js")
 
 	})
 
@@ -52,7 +57,7 @@ func main() {
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		w.WriteHeader(http.StatusOK)
 
-		graph := i.GetAllImports()
+		graph := i.GetAllImports("./")
 		jsonPayload, _ := i.jsonW.ToJSON(graph)
 		io.WriteString(w, jsonPayload)
 	})
@@ -62,8 +67,9 @@ func main() {
 }
 
 // juste un gros bloc pour montrer l'idée initiale, surement naîve
-func (i ImportsFinderInteractor) GetAllImports() *domain.Graph {
-	dirs, _ := i.tE.GetDirsInTree(".")
+func (i ImportsFinderInteractor) GetAllImports(path string) *domain.Graph {
+
+	dirs, _ := i.tE.GetDirsInTree(filepath.Dir(path))
 	graph := &domain.Graph{}
 
 	for _, dir := range *dirs {
