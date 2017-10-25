@@ -2,11 +2,13 @@ package main
 
 import (
 	"go/build"
-	"log"
+	"io"
+	"net/http"
 	"path/filepath"
 	"strings"
 
 	"github.com/err0r500/go-architect/domain"
+	"github.com/err0r500/go-architect/interfaces"
 	AstM "github.com/err0r500/go-architect/interfaces/astManager"
 	FM "github.com/err0r500/go-architect/interfaces/fileManager"
 	"github.com/err0r500/go-architect/interfaces/json"
@@ -14,10 +16,10 @@ import (
 )
 
 type ImportsFinderInteractor struct {
-	tE    TreeExplorer
-	fM    FileManager
-	astM  AstManager
-	jsonW JSONwriter
+	tE    interfaces.TreeExplorer
+	fM    interfaces.FileManager
+	astM  interfaces.AstManager
+	jsonW interfaces.JSONwriter
 }
 
 func main() {
@@ -29,10 +31,34 @@ func main() {
 		jsonW: json.D3formatter{},
 	}
 
-	graph := i.GetAllImports()
-	jsonPayload, _ := i.jsonW.ToJSON(graph)
-	err := i.fM.Write(domain.File{Path: "./js/testGraph.json", Content: []byte(jsonPayload)})
-	log.Print(err)
+	// graph := i.GetAllImports()
+	// jsonPayload, _ := i.jsonW.ToJSON(graph)
+	// err := i.fM.Write(domain.File{Path: "./js/testGraph.json", Content: []byte(jsonPayload)})
+
+	http.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		w.WriteHeader(http.StatusOK)
+		http.ServeFile(w, req, "./js/d3_1/index.html")
+	})
+
+	http.HandleFunc("/vizu.js", func(w http.ResponseWriter, req *http.Request) {
+		w.Header().Set("Content-Type", "application/javascript; charset=utf-8")
+		w.WriteHeader(http.StatusOK)
+		http.ServeFile(w, req, "./js/d3_1/vizu.js")
+
+	})
+
+	http.HandleFunc("/data/", func(w http.ResponseWriter, req *http.Request) {
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		w.WriteHeader(http.StatusOK)
+
+		graph := i.GetAllImports()
+		jsonPayload, _ := i.jsonW.ToJSON(graph)
+		io.WriteString(w, jsonPayload)
+	})
+
+	http.ListenAndServe(":8080", nil)
+
 }
 
 // juste un gros bloc pour montrer l'idée initiale, surement naîve

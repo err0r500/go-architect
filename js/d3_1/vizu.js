@@ -43,7 +43,7 @@ var simulation = d3.forceSimulation()
     .force("charge", d3.forceManyBody().strength(-1000).distanceMax([50]))
     .force("center", d3.forceCenter(width / 2, height / 2));
 
-d3.json("../testGraph.json", function (error, graph) {
+d3.json("http://localhost:8080/data/", function (error, graph) {
     if (error) throw error;
     graphSetup(graph.links, graph.nodes);
 })
