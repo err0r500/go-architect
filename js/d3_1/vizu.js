@@ -34,18 +34,24 @@ d3.json("http://localhost:8080/data/", function (error, graph) {
 
 function getLinkClassFromCoupling(l) {
     cssClass = "link"
-    if (l.Type == "low") {
-        cssClass += " lowCoupling"
-    }
+    // if (l.Type == "low") {
+    //     cssClass += " lowCoupling"
+    // }
     return cssClass
 }
 
 function setupNodesInteractions() {
     node.on('mouseover', function (d) {
-        d3.select(this).attr("class", "active")
+        d3.select(this).classed("active")
 
         children = buildDepsTree(d.id, "children")
         parents = buildDepsTree(d.id, "parents")
+
+        node.filter((e) => children.indexOf(e.id) !== -1)
+            .classed('active', true);
+
+        node.filter((e) => parents.indexOf(e.id) !== -1)
+            .classed('active', true);
 
         link.filter((e) => children.indexOf(e.source.id) !== -1)
             .style("stroke", currDependsOnColor)
@@ -58,6 +64,7 @@ function setupNodesInteractions() {
 
     node.on('mouseout', function (d) {
         link.classed('active', false)
+        node.classed('active', false)
     })
 }
 
@@ -75,13 +82,14 @@ function graphSetup(links, nodes) {
         .data(nodes)
         .enter()
         .append("g")
+        .attr("class", "node")
         .call(d3.drag()
-            .on("start", dragstarted)
-            .on("drag", dragged)
-        );
-
+        .on("start", dragstarted)
+        .on("drag", dragged)
+    );
+    
     node.append("circle")
-        .attr("r", (d) => d.label === "projectRoot" ? 15 : 10)
+    .attr("r", (d) => d.label === "projectRoot" ? 15 : 10)
         .style("fill", function (d, i) {
             switch (d.label) {
                 case "projectRoot":
@@ -100,7 +108,8 @@ function graphSetup(links, nodes) {
         .attr("dy", -13)
         .attr("dx", -13)
         .style("pointer-events", "none")
-        .text(function (d) { return d.name }).attr("fill", "grey")
+        .text(function (d) { return d.name })
+        .attr("fill", "grey");
 
     setupNodesInteractions()
 
