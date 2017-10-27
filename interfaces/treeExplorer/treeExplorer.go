@@ -52,6 +52,10 @@ func isInterestingFile(f os.FileInfo) bool {
 	if f.IsDir() {
 		return false
 	}
+	var isTestFile = regexp.MustCompile(`.*_test.go`)
+	if isTestFile.MatchString(f.Name()) {
+		return false
+	}
 	if filepath.Ext(f.Name()) != ".go" {
 		return false
 	}
