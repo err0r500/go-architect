@@ -9,8 +9,6 @@ var projectRootColor = "white"
 var projectPackageColor = "#aac9ff"
 var corePackageColor = "#8CD28C"
 var thirdPartyPackageColor = "#E37474"
-var currDependsOnColor = "#BA4343"
-var dependsOnCurrColor = "#359535"
 var linkInactiveColor = "grey"
 
 var svg = d3.select("body")
@@ -32,48 +30,13 @@ d3.json("http://localhost:8080/data/", function (error, graph) {
     graphSetup(graph.links, graph.nodes);
 })
 
-function getLinkClassFromCoupling(l) {
-    cssClass = "link"
-    // if (l.Type == "low") {
-    //     cssClass += " lowCoupling"
-    // }
-    return cssClass
-}
-
-function setupNodesInteractions() {
-    node.on('mouseover', function (d) {
-        d3.select(this).classed("active")
-
-        children = buildDepsTree(d.id, "children")
-        parents = buildDepsTree(d.id, "parents")
-
-        node.filter((e) => children.indexOf(e.id) !== -1)
-            .classed('active', true);
-
-        node.filter((e) => parents.indexOf(e.id) !== -1)
-            .classed('active', true);
-
-        link.filter((e) => children.indexOf(e.source.id) !== -1)
-            .style("stroke", currDependsOnColor)
-            .classed('active', true);
-
-        link.filter((e) => parents.indexOf(e.target.id) !== -1)
-            .style("stroke", dependsOnCurrColor)
-            .classed('active', true);
-    })
-
-    node.on('mouseout', function (d) {
-        link.classed('active', false)
-        node.classed('active', false)
-    })
-}
 
 function graphSetup(links, nodes) {
     link = svg.selectAll(".link")
         .data(links)
         .enter()
         .append("line")
-        .attr("class", (d) => getLinkClassFromCoupling(d))
+        .attr("class", "link")
 
     link.append("title")
         .text(function (d) { return d.type; });
@@ -84,12 +47,12 @@ function graphSetup(links, nodes) {
         .append("g")
         .attr("class", "node")
         .call(d3.drag()
-        .on("start", dragstarted)
-        .on("drag", dragged)
-    );
-    
+            .on("start", dragstarted)
+            .on("drag", dragged)
+        );
+
     node.append("circle")
-    .attr("r", (d) => d.label === "projectRoot" ? 15 : 10)
+        .attr("r", (d) => d.label === "projectRoot" ? 15 : 10)
         .style("fill", function (d, i) {
             switch (d.label) {
                 case "projectRoot":
@@ -121,6 +84,42 @@ function graphSetup(links, nodes) {
         .links(links);
 }
 
+function setupNodesInteractions() {
+    node.on('mouseover', function (d) {
+        var children = []
+        var parents = []
+
+        children = buildDepsTree(d.id, "children")
+        parents = buildDepsTree(d.id, "parents")
+
+        node.filter((e) => children.indexOf(e.id) !== -1)
+            .classed('child', true)
+            .classed('active', true);
+
+        node.filter((e) => parents.indexOf(e.id) !== -1)
+            .classed('parent', true)
+            .classed('active', true);
+
+        link.filter((e) => children.indexOf(e.source.id) !== -1)
+            .classed('child', true)
+            .classed('active', true);
+
+        link.filter((e) => parents.indexOf(e.target.id) !== -1)
+            .classed('parent', true)
+            .classed('active', true);
+    })
+
+    node.on('mouseout', function (d) {
+        link.classed('active', false)
+            .classed('child', false)
+            .classed('parent', false);
+            
+        node.classed('active', false)
+            .classed('child', false)
+            .classed('parent', false);
+    })
+}
+
 function buildDepsTree(startNodeID, searchForParentsOrChildren) {
     var srcArray = [startNodeID]
 
@@ -140,6 +139,8 @@ function buildDepsTree(startNodeID, searchForParentsOrChildren) {
     }
     return srcArray
 }
+
+
 
 function ticked() {
     link
