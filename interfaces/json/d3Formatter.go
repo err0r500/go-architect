@@ -43,7 +43,7 @@ func newFromDomain(dG *domain.Graph) *D3Graph {
 
 	for _, vertice := range dG.Vertices {
 		d3G.Vertices = append(d3G.Vertices, D3Vertice{
-			Name:  domain.TrimCurrPackagePathFrom(vertice.Name),
+			Name:  vertice.Name,
 			ID:    vertice.ID,
 			Label: vertice.Label,
 		})

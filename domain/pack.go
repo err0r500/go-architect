@@ -19,7 +19,7 @@ type Pack struct {
 }
 
 func NewPackFromPath(p string) *Pack {
-	pP := packagePath(p)
+	pP := packagePath(p).trimCurrPackagePathFrom()
 	return &Pack{
 		packagePath:  pP,
 		packageClass: pP.getPackageClass(),
@@ -81,7 +81,7 @@ func isStandardImportPath(path string) bool {
 	return !strings.Contains(elem, ".")
 }
 
-func TrimCurrPackagePathFrom(str string) string {
+func (packagePath) trimCurrPackagePathFrom(str string) string {
 	return strings.Replace(str, currPackage+"/", "", -1)
 }
 
